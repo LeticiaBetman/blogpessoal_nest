@@ -11,7 +11,7 @@ export class TemaService {
   ) {}
 
   async findAll(): Promise<Tema[]> {
-    return await this.temaRepository.find({
+    return this.temaRepository.find({
       relations: {
         postagens: true,
       },
@@ -20,16 +20,13 @@ export class TemaService {
 
   async findById(id: number): Promise<Tema> {
     const tema = await this.temaRepository.findOne({
-      where: {
-        id,
-      },
-      relations: {
-        postagens: true,
-      },
+      where: { id },
+      relations: { postagens: true },
     });
 
-    if (!tema)
+    if (!tema) {
       throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
+    }
 
     return tema;
   }
@@ -46,18 +43,25 @@ export class TemaService {
   }
 
   async create(tema: Tema): Promise<Tema> {
-    return await this.temaRepository.save(tema);
+    return this.temaRepository.save(tema);
   }
 
   async update(tema: Tema): Promise<Tema> {
-    await this.findById(tema.id);
+    if (!tema.id) {
+      throw new HttpException(
+        'ID do tema é obrigatório para atualização',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
-    return await this.temaRepository.save(tema);
+    await this.findById(tema.id); // Garante que o tema existe antes de atualizar
+
+    return this.temaRepository.save(tema);
   }
 
   async delete(id: number): Promise<DeleteResult> {
-    await this.findById(id);
+    await this.findById(id); // Garante que o tema existe antes de excluir
 
-    return await this.temaRepository.delete(id);
+    return this.temaRepository.delete(id);
   }
 }

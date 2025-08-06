@@ -29,7 +29,7 @@ export class PostagemController {
     return this.postagemService.findById(id);
   }
 
-  @Get('/titulo/:titulo')
+  @Get('/pesquisa/titulo/:titulo')
   @HttpCode(HttpStatus.OK)
   findAllByTitulo(@Param('titulo') titulo: string): Promise<Postagem[]> {
     return this.postagemService.findAllByTitulo(titulo);
@@ -42,7 +42,7 @@ export class PostagemController {
   }
 
   @Put()
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   update(@Body() postagem: Postagem): Promise<Postagem> {
     return this.postagemService.update(postagem);
   }

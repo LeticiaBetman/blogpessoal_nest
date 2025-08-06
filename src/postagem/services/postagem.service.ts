@@ -16,6 +16,7 @@ export class PostagemService {
     return await this.postagemRepository.find({
       relations: {
         tema: true,
+        usuario: true,
       },
     });
   }
@@ -27,6 +28,7 @@ export class PostagemService {
       },
       relations: {
         tema: true,
+        usuario: true,
       },
     });
 
@@ -43,47 +45,37 @@ export class PostagemService {
       },
       relations: {
         tema: true,
+        usuario: true,
       },
     });
   }
 
   async create(postagem: Postagem): Promise<Postagem> {
     if (postagem.tema) {
-      let tema = await this.temaService.findById(postagem.tema.id);
-
-      if (!tema)
+      const tema = await this.temaService.findById(postagem.tema.id);
+      if (!tema) {
         throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
-
-      return await this.postagemRepository.save(postagem);
+      }
     }
 
-    return await this.postagemRepository.save(postagem);
+    return this.postagemRepository.save(postagem);
   }
 
   async update(postagem: Postagem): Promise<Postagem> {
-    let buscaPostagem: Postagem = await this.findById(postagem.id);
-
-    if (!buscaPostagem || !postagem.id)
-      throw new HttpException('Postagem não encontrada!', HttpStatus.NOT_FOUND);
+    await this.findById(postagem.id);
 
     if (postagem.tema) {
-      let tema = await this.temaService.findById(postagem.tema.id);
-
-      if (!tema)
+      const tema = await this.temaService.findById(postagem.tema.id);
+      if (!tema) {
         throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
-
-      return await this.postagemRepository.save(postagem);
+      }
     }
 
-    return await this.postagemRepository.save(postagem);
+    return this.postagemRepository.save(postagem);
   }
 
   async delete(id: number): Promise<DeleteResult> {
-    let buscaPostagem = await this.findById(id);
-
-    if (!buscaPostagem)
-      throw new HttpException('Postagem não encontrada!', HttpStatus.NOT_FOUND);
-
-    return await this.postagemRepository.delete(id);
+    await this.findById(id);
+    return this.postagemRepository.delete(id);
   }
 }
