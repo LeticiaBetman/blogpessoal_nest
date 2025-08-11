@@ -11,57 +11,59 @@ export class TemaService {
   ) {}
 
   async findAll(): Promise<Tema[]> {
-    return this.temaRepository.find({
+    return await this.temaRepository.find({
       relations: {
-        postagens: true,
+        postagem: true,
       },
     });
   }
 
   async findById(id: number): Promise<Tema> {
-    const tema = await this.temaRepository.findOne({
-      where: { id },
-      relations: { postagens: true },
+    let tema = await this.temaRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        postagem: true,
+      },
     });
 
-    if (!tema) {
+    if (!tema)
       throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
-    }
 
     return tema;
   }
 
-  async findAllByDescricao(descricao: string): Promise<Tema[]> {
-    return this.temaRepository.find({
+  async findByDescricao(descricao: string): Promise<Tema[]> {
+    return await this.temaRepository.find({
       where: {
         descricao: ILike(`%${descricao}%`),
       },
       relations: {
-        postagens: true,
+        postagem: true,
       },
     });
   }
 
-  async create(tema: Tema): Promise<Tema> {
-    return this.temaRepository.save(tema);
+  async create(Tema: Tema): Promise<Tema> {
+    return await this.temaRepository.save(Tema);
   }
 
   async update(tema: Tema): Promise<Tema> {
-    if (!tema.id) {
-      throw new HttpException(
-        'ID do tema é obrigatório para atualização',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    let buscaTema = await this.findById(tema.id);
 
-    await this.findById(tema.id); // Garante que o tema existe antes de atualizar
+    if (!buscaTema || !tema.id)
+      throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
 
-    return this.temaRepository.save(tema);
+    return await this.temaRepository.save(tema);
   }
 
   async delete(id: number): Promise<DeleteResult> {
-    await this.findById(id); // Garante que o tema existe antes de excluir
+    let buscaTema = await this.findById(id);
 
-    return this.temaRepository.delete(id);
+    if (!buscaTema)
+      throw new HttpException('Tema não encontrado!', HttpStatus.NOT_FOUND);
+
+    return await this.temaRepository.delete(id);
   }
 }
