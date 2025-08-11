@@ -38,6 +38,10 @@ export class AuthService {
       usuarioLogin.usuario,
     );
 
+    if (!buscaUsuario) {
+      throw new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
+    }
+
     return {
       id: buscaUsuario.id,
       nome: buscaUsuario.nome,
