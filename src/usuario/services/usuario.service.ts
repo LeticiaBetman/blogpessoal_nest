@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DeleteResult } from 'typeorm';
 import { Usuario } from '../entities/usuario.entity';
 import { Bcrypt } from '../../auth/bcrypt/bcrypt';
 
@@ -60,5 +60,14 @@ export class UsuarioService {
 
     usuario.senha = await this.bcrypt.criptografarSenha(usuario.senha);
     return await this.usuarioRepository.save(usuario);
+  }
+
+  async delete(id: number): Promise<DeleteResult> {
+    let buscaUsuario = await this.findById(id);
+
+    if (!buscaUsuario)
+      throw new HttpException('Usuário não encontrado!', HttpStatus.NOT_FOUND);
+
+    return await this.usuarioRepository.delete(id);
   }
 }
